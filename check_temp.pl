@@ -1,7 +1,10 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use lib "/home/pi/perl5/lib/perl5";
 use XML::Simple;
+
+my $log_level=0;
 
 ##############################################
 ##
@@ -41,9 +44,12 @@ my $telegram_api_key =$xml->{telegram}->{key}; #telegram API key for your bot
 my $telegram_chatid =$xml->{telegram}->{chatid}; #chat id of the telegram room to which the bot will send the message
 my $temp_limit =$xml->{rpi}->{max_temp}; #max temperature limit for your Raspberry-Pi after which you want to be alerted
 
+print "<<$0>><<DEBUG>><<Loaded parameters>><<>>\n" if $log_level>1;
+
 #if the parameters above are not defined, exit the script.
 unless($telegram_api_key && $telegram_chatid && $temp_limit){
-	die "Either API key, ChatID or MaxTemp isn't defined. Please check $path\n";
+	print "<<$0>><<ERROR>><<Either API key, ChatID or MaxTemp isn't defined. Please check $path>><<>>\n" if $log_level >=0;
+	exit;
 }
 
 my $parse_mode='Markdown';
@@ -56,10 +62,11 @@ my $parse_mode='Markdown';
 my @remove_text = ('temp=','\'C');
 
 my $rpi_temp = `vcgencmd measure_temp | sed "s/$remove_text[0]//" | sed "s/$remove_text[1]//"`;
+chomp($rpi_temp);
 if($rpi_temp > $temp_limit){
 	my $dt=`date +"%F %T"`;
 	chomp $dt;
-	my $message = "$dt: WARNING!! RaspberryPi temprature HIGH: $rpi_temp\n";
-	print $message;
+	my $message = "$dt: WARNING!! RaspberryPi temprature HIGH: $rpi_temp";
+	print "<<$0>><<WARN>><<$message>><<$dt>>\n" if $log_level >=0;
 	my $send_message = `curl -s 'https://api.telegram.org/bot$telegram_api_key/sendMessage' -d '{"chat_id":"$telegram_chatid","text":"$message","parse_mode":"$parse_mode"}' -H 'Content-Type: application/json'`;
 }
