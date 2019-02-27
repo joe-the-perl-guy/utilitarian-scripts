@@ -39,6 +39,7 @@ if($path){
 my $weather_api_key = $xml->{openweathermap}->{key};
 my $city_id = $xml->{openweathermap}->{trimulgherry};
 my $telegram_api_key = $xml->{telegram}->{key};
+my $telegram_chatid = $xml->{telegram}->{chatid};
 
 if($weather_api_key && $city_id && $telegram_api_key){
 	print "<<DEBUG>><<All parameters loaded successfully>><<>>\n" if $log_level>0;
@@ -60,7 +61,7 @@ if($response->is_success){
 	$message .= 'Min. Temp.: '.$json->{"main"}->{"temp_min"}.'C \n';
 	$message .= 'Max. Temp.: '.$json->{"main"}->{"temp_max"}.'C \n';
 	$message .= 'Humidity: '.$json->{"main"}->{"humidity"}.'%\n';
-	my $send_message = `curl -s 'https://api.telegram.org/bot$telegram_api_key/sendMessage' -d '{"chat_id":"-1001206918972","text":"$message","parse_mode":"Markdown"}' -H 'Content-Type: application/json'`;
+	my $send_message = `curl -s 'https://api.telegram.org/bot$telegram_api_key/sendMessage' -d '{"chat_id":"$telegram_chatid","text":"$message","parse_mode":"Markdown"}' -H 'Content-Type: application/json'`;
 }else{
 	print "<<ERROR>><<$response->status_line>><<>>\n";
 }
