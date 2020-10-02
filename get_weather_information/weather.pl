@@ -36,10 +36,12 @@ if($path){
 }
 
 # LOAD THE WEATHER API DATA
+my $name = $xml->{personal}->{name};
 my $weather_api_key = $xml->{openweathermap}->{key};
 my $city_id = $xml->{openweathermap}->{trimulgherry};
 my $telegram_api_key = $xml->{telegram}->{key};
 my $telegram_chatid = $xml->{telegram}->{chatid};
+
 
 if($weather_api_key && $city_id && $telegram_api_key){
 	print "<<DEBUG>><<All parameters loaded successfully>><<>>\n" if $log_level>0;
@@ -54,7 +56,7 @@ my $response = $ua->get($uri);
 if($response->is_success){
 	print "<<DEBUG>><<Received response from Weather API>><<>>\n" if $log_level>0;
 	my $json = decode_json($response->content);
-	my $message = '*Hello Aashish*, here is the current weather information\n\n';
+	my $message = "*Hello $name*".', here is the current weather information\n\n';
 	$message .= 'City: '.$json->{"name"}.'\n';
 	$message .= 'Weather: '.$json->{"weather"}->[0]->{"description"}.'\n';
 	$message .= 'Temp.: '.$json->{"main"}->{"temp"}.'C \n';
